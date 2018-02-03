@@ -22,11 +22,12 @@ devtools::session_info()
 # ------------------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
-library(tidytext)
+library(gutenbergr)
+library(janeaustenr)
+library(scales)
 library(stringr)
 library(tidyr)
-library(janeaustenr)
-library(gutenbergr)
+library(tidytext)
 
 # ------------------------------------------------------------------------
 # Chapter 1: The Tidy Text Format
@@ -86,5 +87,25 @@ tidy_bronte <- bronte %>%
 
 tidy_bronte %>% 
   count(word, sort = TRUE)
+
+frequency = bind_rows(mutate(tidy_bronte, author = "Bronte Sisters"),
+                      mutate(tidy_hgwells, author = "H. G. Wells"),
+                      mutate(tidy_books, author = "Jane Austen")) %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>%
+  count(author, word) %>% 
+  group_by(author) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  select(-n) %>% 
+  spread(author, proportion) %>% 
+  gather(author, proportion, `Bronte Sisters`:`H. G. Wells`)
+  
+ggplot(frequency, aes(x = proportion, y = `Jane Austen`, 
+                      colour = abs(`Jane Austen` - proportion))) +
+  geom_abline()
+
+
+
+
+
 
 
