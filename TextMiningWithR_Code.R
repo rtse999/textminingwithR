@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------
-# Description
+# Exercises and examples from the book - Text Mining with R
 # Link:
 #
-# Location:
-# First created:
-# Last modified:
+# Location: /Users/raymondtse/Dropbox/Analysis/Books/TextMiningWithR_Code.r
+# First created: 13:58 - Saturday 3 February 2018
+# Last modified: 13:58 - Saturday 3 February 2018
 # ------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------
