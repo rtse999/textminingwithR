@@ -21,9 +21,12 @@ devtools::session_info()
 # Libraries
 # ------------------------------------------------------------------------
 library(dplyr)
+library(ggplot2)
 library(tidytext)
 library(stringr)
+library(tidyr)
 library(janeaustenr)
+library(gutenbergr)
 
 # ------------------------------------------------------------------------
 # Chapter 1: The Tidy Text Format
@@ -53,7 +56,35 @@ tidy_books <- original_books %>%
   unnest_tokens(word, text)
 tidy_books
 
+data(stop_words)
+tidy_books <- tidy_books %>%  
+  anti_join(stop_words)
 
+tidy_books %>% 
+  count(word, sort = TRUE) %>% 
+  filter(n > 600) %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
 
+hgwells <- gutenberg_download( c( 35, 36, 5230, 159))
+
+tidy_hgwells <- hgwells %>% 
+  unnest_tokens(word, text) %>% 
+  anti_join(stop_words)
+
+tidy_hgwells %>% 
+  count(word, sort = TRUE)
+
+bronte <- gutenberg_download( c( 1260, 768, 969, 9182, 767))
+
+tidy_bronte <- bronte %>% 
+  unnest_tokens(word, text) %>% 
+  anti_join(stop_words)
+
+tidy_bronte %>% 
+  count(word, sort = TRUE)
 
 
