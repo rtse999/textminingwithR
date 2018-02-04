@@ -183,5 +183,26 @@ bind_rows(afinn, bing_and_nrc) %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ method, ncol = 1, scales = "free_y")
 
+bing_word_counts <- tidy_books %>% 
+  inner_join(get_sentiments("bing")) %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+bing_word_counts %>% 
+  group_by(sentiment) %>%
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free_y") +
+  labs(y = "Contribute to sentiment",
+       x = NULL) +
+  coord_flip()
+  
+
+
+
+
 
 
