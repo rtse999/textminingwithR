@@ -200,6 +200,43 @@ bing_word_counts %>%
        x = NULL) +
   coord_flip()
   
+PandP_sentences <- data.frame(text = prideprejudice) %>% 
+  unnest_tokens(sentence, text, token = "sentences")
+
+PandP_sentences$sentence[2]
+
+austen_chapters <- austen_books() %>% 
+  group_by(book) %>% 
+  unnest_tokens(chapter, text, token = "regex",
+                pattern = "Chapter|CHAPTER [\\dIVXLC]") %>% 
+  ungroup()
+
+austen_chapters %>% 
+  group_by(book) %>% 
+  summarise(chapters = n())
+
+bingnegative <- get_sentiments("bing") %>% 
+  filter(sentiment == "negative")
+
+wordcounts <- tidy_books %>% 
+  group_by(book, chapter) %>% 
+  summarise(words = n())
+
+tidy_books %>% 
+  semi_join(bingnegative) %>% 
+  group_by(book,chapter) %>% 
+  summarise(negativewords = n()) %>% 
+  left_join(wordcounts, by = c("book", "chapter")) %>% 
+  mutate(ratio = negativewords / words) %>% 
+  filter(chapter != 0) %>% 
+  top_n(1) %>% 
+  ungroup()
+
+# ------------------------------------------------------------------------
+# Chapter 3: Analyzing Word and Document Frequency: tf-idf
+# ------------------------------------------------------------------------  
+
+
 
 
 
