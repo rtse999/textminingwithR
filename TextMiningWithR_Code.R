@@ -4,7 +4,7 @@
 #
 # Location: /Users/raymondtse/Dropbox/Analysis/Books/TextMiningWithR_Code.r
 # First created: 13:58 - Saturday 3 February 2018
-# Last modified: 13:58 - Saturday 3 February 2018
+# Last modified: 12:36 - Saturday 10 February 2018
 # ------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------
@@ -235,7 +235,11 @@ tidy_books %>%
 # ------------------------------------------------------------------------
 # Chapter 3: Analyzing Word and Document Frequency: tf-idf
 # ------------------------------------------------------------------------  
-
+book_words <- austen_books() %>% 
+  unnest_tokens(word, text) %>% 
+  count(book, word, sort = TRUE) %>% 
+  ungroup()
+  
 
 
 
