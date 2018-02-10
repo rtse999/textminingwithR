@@ -240,10 +240,25 @@ book_words <- austen_books() %>%
   count(book, word, sort = TRUE) %>% 
   ungroup()
   
+total_words <- book_words %>% 
+  group_by(book) %>% 
+  summarise(total = sum(n))
 
+book_words <- left_join(book_words, total_words)
 
+ggplot(book_words, aes(n/total, fill = book)) +
+  geom_histogram(show.legend = FALSE) +
+  xlim(NA, .0009) +
+  facet_wrap(~book, ncol = 2, scales = "free_y")
 
+freq_by_rank <- book_words %>% 
+  group_by(book) %>% 
+  mutate(rank = row_number(),
+         `term frequency` = n/total)
 
-
-
+freq_by_rank %>% 
+  ggplot(aes(rank, `term frequency`, colour = book)) +
+  geom_line(size = 1.1, alpha = 0.8, show.legend = FALSE) +
+  scale_x_log10() +
+  scale_y_log10()
 
