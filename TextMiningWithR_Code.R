@@ -281,7 +281,12 @@ book_words %>%
   facet_wrap(~book, ncol = 2, scales="free") +
   coord_flip()
 
+physics <-gutenberg_download(c(37729, 14725, 13476, 5001),
+                             meta_fields = "author")
 
-  
+physics_words <- physics %>% 
+  unnest_tokens(word, text) %>% 
+  count(author, word, sort = TRUE) %>% 
+  ungroup()
           
           
