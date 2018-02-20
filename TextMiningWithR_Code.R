@@ -323,7 +323,27 @@ physics %>%
   filter(str_detect(text, "AK")) %>% 
   select(text)
 
+mystopwords <- data_frame(word = c("eq", "co", "rc", "ac", "ak", "bn",
+                                   "fig", "file", "cg", "cb", "cm"))
+physics_words <- anti_join(physics_words, mystopwords, by = "word")
 
+plot_physics <- physics_words %>% 
+  bind_tf_idf(word, author, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(author) %>% 
+  top_n(15, tf_idf) %>% 
+  ungroup %>% 
+  mutate(author = factor(author, levels = c("Galilei, Galileo",
+                                            "Huygens, Christiaan",
+                                            "Tesla, Nikola",
+                                            "Einstein, Albert")))
 
+ggplot(plot_physics, aes(word, tf_idf, fill = author)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~author, ncol = 2, scales = "free") +
+  coord_flip()
+  
 
 
