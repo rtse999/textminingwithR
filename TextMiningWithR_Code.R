@@ -24,6 +24,7 @@ library(dplyr)
 library(ggplot2)
 library(gutenbergr)
 library(janeaustenr)
+library(readr)
 library(scales)
 library(stringr)
 library(tidyr)
@@ -281,8 +282,9 @@ book_words %>%
   facet_wrap(~book, ncol = 2, scales="free") +
   coord_flip()
 
-physics <-gutenberg_download(c(37729, 14725, 13476, 5001),
-                             meta_fields = "author")
+#physics <-gutenberg_download(c(37729, 14725, 13476, 5001),
+#                             meta_fields = "author")
+physics <- read_csv("physics.csv")
 
 physics_words <- physics %>% 
   unnest_tokens(word, text) %>% 
