@@ -345,5 +345,34 @@ ggplot(plot_physics, aes(word, tf_idf, fill = author)) +
   facet_wrap(~author, ncol = 2, scales = "free") +
   coord_flip()
   
+# ------------------------------------------------------------------------
+# Chapter 4: Relationships between words: N-grams and correlations
+# ------------------------------------------------------------------------  
+austen_bigrams <- austen_books() %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+austen_bigrams %>% 
+  count(bigram, sort = TRUE)
+
+bigrams_separated <- austen_bigrams %>% 
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_filtered <-  bigrams_separated %>% 
+  filter(!word1 %in% stop_words$word) %>% 
+  filter(!word2 %in% stop_words$word)
+
+bigram_counts <- bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+
+bigrams_united <- bigrams_filtered %>% 
+  unite(bigram, word1, word2, sep = " ")
+
+austen_books() %>% 
+  unnest_tokens(trigram, text, token = "ngrams", n = 3) %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  count(word1, word2, word3, sort = TRUE)
 
 
