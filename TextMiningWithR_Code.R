@@ -22,7 +22,9 @@ devtools::session_info()
 # ------------------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
+library(ggraph)
 library(gutenbergr)
+library(igraph)
 library(janeaustenr)
 library(readr)
 library(scales)
@@ -375,4 +377,66 @@ austen_books() %>%
          !word3 %in% stop_words$word) %>% 
   count(word1, word2, word3, sort = TRUE)
 
+bigrams_filtered %>% 
+  filter(word2 == "street") %>% 
+  count(book, word1, sort = TRUE)
 
+bigram_tf_idf <- bigrams_united %>% 
+  count(book, bigram) %>% 
+  bind_tf_idf(bigram, book, n) %>% 
+  arrange(desc(tf_idf))
+
+bigrams_separated %>% 
+  filter(word1 == "not") %>% 
+  count(word1, word2, sort = TRUE)
+
+AFINN <- get_sentiments("afinn")
+
+not_words <- bigrams_separated %>% 
+  filter(word1 == "not") %>% 
+  inner_join(AFINN, by = c(word2 = "word")) %>% 
+  count(word2, score, sort = TRUE) %>% 
+  ungroup()
+
+not_words %>% 
+  mutate(contribution = n * score) %>% 
+  arrange(desc(abs(contribution))) %>% 
+  head(20) %>% 
+  mutate(word2 = reorder(word2, contribution)) %>% 
+  ggplot(aes(word2, n * score, fill = n * score > 0)) +
+  geom_col(show.legend = FALSE) +
+  xlab("Words preceded by \"not\"") +
+  ylab("Sentiment score * number of occurences") +
+  coord_flip()
+
+negation_words <- c("not", "no", "never", "without")
+
+negated_words <- bigrams_separated %>% 
+  filter(word1 %in% negation_words) %>% 
+  inner_join(AFINN, by = c(word2 = "word")) %>% 
+  count(word1, word2, score, sort = TRUE) %>% 
+  ungroup()
+
+bigram_counts
+
+bigram_graph <- bigram_counts %>% 
+  filter(n > 20) %>% 
+  graph_from_data_frame()
+
+bigram_graph
+
+set.seed(2017)
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+
+set.seed(2016)
+a <- grid::arrow(type = "closed", length = unit(0.15, "inches"))
+
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n), show.legend = FALSE,
+                 arrow = a, end_cap = circle(0.07, 'inches')) +
+  geom_node_point(colour = "lightblue", size = 5) +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1) +
+  theme_void()
