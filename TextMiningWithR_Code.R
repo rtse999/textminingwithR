@@ -440,3 +440,43 @@ ggraph(bigram_graph, layout = "fr") +
   geom_node_point(colour = "lightblue", size = 5) +
   geom_node_text(aes(label = name), vjust = 1, hjust = 1) +
   theme_void()
+
+count_bigrams <- function(dataset) {
+  dataset %>% 
+    unnest_tokens(bigram, text, token = "ngrams", n = 2) %>% 
+    separate(bigram, c("word1", "word2"), sep = " ") %>% 
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %>% 
+    count(word1, word2, sort = TRUE)
+}  
+
+visualise_bigrams <- function( bigrams) {
+  set.seed( 2016) 
+  a <- grid::arrow( type = "closed", length = unit(.15, "inches")) 
+  bigrams %>% 
+    graph_from_data_frame() %>% 
+    ggraph(layout = "fr") + 
+    geom_edge_link(aes(edge_alpha = n), show.legend = FALSE, arrow = a) + 
+    geom_node_point(color = "lightblue", size = 5) + 
+    geom_node_text(aes(label = name), vjust = 1, hjust = 1) + 
+    theme_void() 
+}
+
+# The King James Bible is book 10 in gutenbergr
+kjv <- gutenberg_download(10)
+
+kjv_bigrams <- kjv %>% 
+  count_bigrams()
+
+#filter out rare combinations and digits
+kjv_bigrams %>% 
+  filter(n > 40,
+         !str_detect(word1, "\\d"),
+         !str_detect(word2, "\\d")) %>% 
+  visualise_bigrams()
+
+
+
+
+
+  
