@@ -475,8 +475,17 @@ kjv_bigrams %>%
          !str_detect(word2, "\\d")) %>% 
   visualise_bigrams()
 
+# The Importance of Being Ernest
+tiobe <- gutenberg_download(844)
 
+tiobe_bigrams <- tiobe %>% 
+  count_bigrams()  
 
+tiobe_bigrams %>% 
+  filter(n > 5,
+         !str_detect(word1, "\\d"),
+         !str_detect(word2, "\\d")) %>% 
+  visualise_bigrams()
 
 
   
