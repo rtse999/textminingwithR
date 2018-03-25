@@ -4,7 +4,7 @@
 #
 # Location: /Users/raymondtse/Dropbox/Analysis/Books/TextMiningWithR_Code.r
 # First created: 13:58 - Saturday 3 February 2018
-# Last modified: 23:48 - Sunday 18 February 2018
+# Last modified: 20:40 - Sunday 25 March 2018
 # ------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------
@@ -31,6 +31,7 @@ library(scales)
 library(stringr)
 library(tidyr)
 library(tidytext)
+library(widyr)
 
 # ------------------------------------------------------------------------
 # Chapter 1: The Tidy Text Format
@@ -487,5 +488,25 @@ tiobe_bigrams %>%
          !str_detect(word2, "\\d")) %>% 
   visualise_bigrams()
 
-
+# Counting and Correlating Pairs of Words with the widyr Package
+austen_section_words <- austen_books() %>% 
+  filter(book == "Pride & Prejudice") %>% 
+  mutate(section = row_number() %/% 10) %>% 
+  filter(section > 0) %>%
+  unnest_tokens(word, text) %>% 
+  filter(!word %in% stop_words$word)
   
+austen_section_words
+
+word_pairs <- austen_section_words %>% 
+  pairwise_count(word, section, sort = TRUE)
+
+word_pairs
+
+word_pairs %>% 
+  filter(item1 == "darcy")
+
+
+
+
+
