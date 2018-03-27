@@ -506,7 +506,25 @@ word_pairs
 word_pairs %>% 
   filter(item1 == "darcy")
 
+words_cors <- austen_section_words %>% 
+  group_by(word) %>% 
+  filter(n() >= 20) %>% 
+  pairwise_cor(word, section, sort = TRUE)
 
+words_cors
 
+words_cors %>% 
+  filter(item1 == "pounds")
 
+words_cors %>% 
+  filter(item1 %in% c("elizabeth", "pounds",
+                      "married", "pride")) %>% 
+  group_by(item1) %>% 
+  top_n(6) %>% 
+  ungroup() %>% 
+  mutate(item2 = reorder(item2, correlation)) %>% 
+  ggplot(aes(item2, correlation)) +
+  geom_bar(stat = "identity") + 
+  facet_wrap(~ item1, scales = "free") +
+  coord_flip()
 
