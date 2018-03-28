@@ -31,6 +31,7 @@ library(scales)
 library(stringr)
 library(tidyr)
 library(tidytext)
+library(tm)
 library(widyr)
 
 # ------------------------------------------------------------------------
@@ -527,4 +528,10 @@ words_cors %>%
   geom_bar(stat = "identity") + 
   facet_wrap(~ item1, scales = "free") +
   coord_flip()
+
+# ------------------------------------------------------------------------
+# Chapter 5. Converting to and from Nontidy Formats
+# ------------------------------------------------------------------------
+
+
 
