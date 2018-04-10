@@ -4,7 +4,7 @@
 #
 # Location: /Users/raymondtse/Dropbox/Analysis/Books/TextMiningWithR_Code.r
 # First created: 13:58 - Saturday 3 February 2018
-# Last modified: 20:40 - Sunday 25 March 2018
+# Last modified: 23:05 - Tuesday 10 April 2018
 # ------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------
@@ -26,6 +26,7 @@ library(ggraph)
 library(gutenbergr)
 library(igraph)
 library(janeaustenr)
+library(methods)
 library(readr)
 library(scales)
 library(stringr)
@@ -532,6 +533,47 @@ words_cors %>%
 # ------------------------------------------------------------------------
 # Chapter 5. Converting to and from Nontidy Formats
 # ------------------------------------------------------------------------
+data("AssociatedPress", package = "topicmodels")
+AssociatedPress
 
+terms <- Terms(AssociatedPress)
+head(terms)
+
+ap_td <- tidy(AssociatedPress)
+ap_td
+
+ap_sentiments <- ap_td %>% 
+  inner_join(get_sentiments("bing"), by = c(term = "word"))
+ap_sentiments
+
+ap_sentiments %>%
+  count(sentiment, term, wt = count) %>% 
+  ungroup() %>% 
+  filter(n >= 200) %>% 
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>% 
+  mutate(term = reorder(term, n)) %>% 
+  ggplot(aes(term, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  ylab("Contribution to sentiment") +
+  coord_flip()
+
+# Tidying dfm Objects
+data("data_corpus_inaugural", package = "quanteda")
+inaug_dfm <- 
+  quanteda::dfm(data_corpus_inaugural, verbose = FALSE)
+inaug_dfm
+
+inaug_td <- tidy(inaug_dfm)
+inaug_td
+
+inaug_tf_idf <- inaug_td %>% 
+  bind_tf_idf(term, document, count) %>% 
+  arrange(desc(tf_idf))
+
+year_term_counts <- inaug_td %>% 
+  extract(document, "year", "(\\d+)", convert = TRUE) %>% 
+  complete(year, term, fill = list(count = 0)) %>% 
+  group_by(year) %>% 
+  mutate(year_total = sum(count))
 
 
